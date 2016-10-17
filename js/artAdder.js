@@ -6,72 +6,143 @@ var debug = true;
 
   /******************************************************************************/
 
-function rand(min, max) {
+  function rand(min, max) {
     return min + Math.random() * (max - min);
-}
+  }
 
-function get_random_color() {
+  function get_random_color() {
     var h = rand(1, 360);
     var s = rand(0, 100);
     var l = rand(0, 100);
     return 'hsl(' + h + ',' + s + '%,' + l + '%)';
-}
+  }
   var artAdder = {
     replacedCount : '',
+
     processAdNode : function (elem) {
 
-       var goodBye = false
-      if (elem.offsetWidth < 2) goodBye = true
-      if (elem.offsetHeight < 2) goodBye = true
-      if (elem.tagName !== 'IFRAME'
-          && elem.tagName !== 'IMG'
-          // && elem.tagName !== 'DIV'
-          // && elem.tagName !== 'OBJECT'
-          // && elem.tagName !== 'A'
-          // && elem.tagName !== 'INS'
-          ) goodBye = true
+      var goodBye = false;
+      var reason = "";
+      var tagType = ["IFRAME", "IMG", "DIV","LI"];  //A,INS?
 
-      if ($(elem).data('replaced')) goodBye = true
-      $(elem).data('replaced', true)
-      if (goodBye) return
+      debug && console.log("[Process Node]", elem);
+      
+      //Step1: Ignore tiny tracking elements
+      if (elem.offsetWidth < 2 || elem.offsetHeight < 2) {
+        reason = "Size is too small";
+        goodBye = true;
+      }
+      
+      //Step2: Check the tag
+      if (tagType.indexOf(elem.tagName) < 0) {
+        reason = "Type not match";
+        goodBye = true;
+      }
 
-      debug && console.log("Find Ad:",elem);
-      debug && console.log("Parent:",elem.parentElement);
+      //Step3: Check if the element has already been replaced with AdLiPo wrapper
 
-        var origW = elem.offsetWidth
-        var origH = elem.offsetHeight
-        debug && console.log(origW,origH);
+      // if( elem.tagName == 'DIV' && elem.find('.AdLiPoWrapper').length>0) 
+      // console.log("child",elem.find(img))
+      if ($(elem).data('replaced')) {
+        reason = "Duplicate";
+        goodBye = true;
+      } 
+      $(elem).data('replaced', true);
 
-        var wrapper = document.createElement('div')
-        wrapper.className = 'AdLiPoWrapper'
-        wrapper.style.width = origW + 'px'
-        wrapper.style.height = origH + 'px'
-        wrapper.style.position = 'relative'
-        wrapper.style.backgroundColor = get_random_color()
-        console.log(wrapper);
-        elem.parentElement.appendChild(wrapper);
+      //Ignore elements that doesn't match the requirements
+      if (debug && goodBye) console.log("[Ignore] " + reason);
+      if (goodBye) return;
+      
+      if (elem.tagName == 'IFRAME' || elem.tagName == 'IMG' ) {
+        this.addWrapper(elem, "append");
+      }
+      else {
+        //DIV & LI is only for TEXT ADS
+        //only when if there is no img/iframe inside
+        if( this.noBigImage(elem) && $(elem).find("iframe").length === 0){
+          debug && console.log("[Text Ad]");
+          this.addWrapper(elem, "cover");
+        }
+      
+      }
+      return true;
+    },
+    
+    addWrapper : function(elem, style) {
 
-        $(elem).hide();
+      //add AdLiPo Wrapper 
 
-      return true
+      var origW = elem.offsetWidth;
+      var origH = elem.offsetHeight;
+
+      debug && console.log("Width: " + origW + " Height: " + origH);
+
+      var wrapper = document.createElement('div');
+      wrapper.className = 'AdLiPoWrapper';
+      wrapper.style.width = origW + 'px';
+      wrapper.style.height = origH + 'px';
+      wrapper.style.backgroundColor = get_random_color();
+
+      if (style == "append") {
+      wrapper.style.position = 'relative';
+      debug && console.log("Append Wrapper To Parent:",elem.parentElement);
+      elem.parentElement.appendChild(wrapper);
+      $(elem).hide();
+      }
+
+      if (style == "cover") {
+      wrapper.style.position = 'absolute';
+      wrapper.style.top = '0px';
+      wrapper.style.left = '0px';
+
+      elem.style.position = 'relative';
+    
+      debug && console.log("Append Wrapper to Element:",elem);
+      elem.appendChild(wrapper);
+      }
+
+      debug && console.log("[AdLiPo Wrapper]", wrapper);
+    
+    },
+
+    noBigImage : function(elem) {
+    //dealing with conditions when small icons are added to the Text ad Element
+      var imgs = $(elem).find("img");
+      debug && console.log("[CheckImage]", elem);
+
+      if(imgs.length === 0) return true;
+      else{
+
+        for(var i = 0; i < imgs.length; i++){
+
+          if(imgs[i].offsetWidth > 15 || imgs[i].offsetHeight > 15){
+            debug && console.log("[Ignore] Image/Iframe Inside", elem);
+            return false;
+          }
+            
+        }
+        return true;
+      }
+
     },
 
     // abstract storage for different browsers
     localSet : function (key, thing) {
-      var d = Q.defer()
+      var d = Q.defer();
       if (typeof chrome !== 'undefined') {
-        var save = {}
-        save[key] = thing
-        chrome.storage.local.set(save, d.resolve)
+        var save = {};
+        save[key] = thing;
+        chrome.storage.local.set(save, d.resolve);
       }
-      return d.promise
+      return d.promise;
     },
+
     localGet : function (key) {
-      var d = Q.defer()
+      var d = Q.defer();
       if (typeof chrome !== 'undefined') {
-        chrome.storage.local.get(key, d.resolve)
+        chrome.storage.local.get(key, d.resolve);
       }
-      return d.promise
+      return d.promise;
     },
 
     fetchSelectorList : function () {
@@ -81,20 +152,18 @@ function get_random_color() {
         type : 'get',
         success : function (txt){
           debug && console.log("seccessfully get the list!");
-          var txtArr = txt.split("\n").reverse() 
-          var selectors = txtArr 
-                .filter(function (line) {
-                  return /^##/.test(line)
-                })
-                .map(function (line) {
-                  return line.replace(/^##/, '')
-                })
+          var txtArr = txt.split("\n").reverse() ;
+          var selectors = txtArr.filter(function (line) {
+            return /^##/.test(line);
+          })
+          .map(function (line) {
+            return line.replace(/^##/, '');
+          })
 
-          var whitelist = txtArr
-                .filter(function (line){
-                  return /^[a-z0-9]/.test(line) && !/##/.test(line)
-                })
-                .map(R.split('#@#'))
+          var whitelist = txtArr.filter(function (line){
+            return /^[a-z0-9]/.test(line) && !/##/.test(line);
+          })
+          .map(R.split('#@#'))
           artAdder.localSet('selectors', {
             selectors : selectors,
             whitelist : whitelist
@@ -102,16 +171,16 @@ function get_random_color() {
         }
       })
     },
+
     getSelectors : function () {
-      return artAdder.localGet('selectors')
-      .then(function (obj) {
-        return obj.selectors
+      return artAdder.localGet('selectors').then(function (obj) {
+        return obj.selectors;
       })
     }
 
   }//End of Art Adder
 
-  window.artAdder = artAdder
+  window.artAdder = artAdder;
 })();
 
 
