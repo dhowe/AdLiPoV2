@@ -16,6 +16,7 @@ var debug = true;
     var l = rand(0, 100);
     return 'hsl(' + h + ',' + s + '%,' + l + '%)';
   }
+
   var artAdder = {
     replacedCount : '',
 
@@ -74,8 +75,9 @@ var debug = true;
 
       var origW = elem.offsetWidth;
       var origH = elem.offsetHeight;
+      var margin = 0; //tmp
 
-      debug && console.log("Width: " + origW + " Height: " + origH);
+      debug && console.log("Width: " + origW + " Height: " + origH + " Margin " + margin);
 
       var wrapper = document.createElement('div');
       wrapper.className = 'AdLiPoWrapper';
@@ -84,24 +86,31 @@ var debug = true;
       wrapper.style.backgroundColor = get_random_color();
 
       if (style == "append") {
-      wrapper.style.position = 'relative';
-      debug && console.log("Append Wrapper To Parent:",elem.parentElement);
-      elem.parentElement.appendChild(wrapper);
-      $(elem).hide();
+
+        wrapper.style.position = 'relative';
+
+        debug && console.log("Append Wrapper To Parent:",elem.parentElement);
+        elem.parentElement.appendChild(wrapper);
+
+        $(elem).hide();
+
       }
 
       if (style == "cover") {
-      wrapper.style.position = 'absolute';
-      wrapper.style.top = '0px';
-      wrapper.style.left = '0px';
+        wrapper.style.position = 'absolute';
+        wrapper.style.top = '0px';
+        wrapper.style.left = '0px';
 
-      elem.style.position = 'relative';
-    
-      debug && console.log("Append Wrapper to Element:",elem);
-      elem.appendChild(wrapper);
+        elem.style.position = 'relative';
+
+        debug && console.log("Append Wrapper to Element:",elem);
+        elem.appendChild(wrapper);
       }
 
       debug && console.log("[AdLiPo Wrapper]", wrapper);
+
+      //Add Text
+      // injectAd(".AdLiPoWrapper", origW, origH, margin);
     
     },
 
