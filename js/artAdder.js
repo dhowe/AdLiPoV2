@@ -109,8 +109,8 @@ var debug = true;
 
       debug && console.log("[AdLiPo Wrapper]", wrapper);
 
-      //Add Text
-      // injectAd(".AdLiPoWrapper", origW, origH, margin);
+      // Add Text
+      injectAd(".AdLiPoWrapper", origW, origH, margin);
     
     },
 
