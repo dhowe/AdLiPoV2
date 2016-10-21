@@ -63,7 +63,7 @@ function injectAd(sel, w, h, m) {
 		'line-height':  	(poem.leading/100 * poem.fontSize)+'px', 
 		'fontSize':  		poem.fontSize+'px', 
 	 	//'padding': 			'0px 0px 0px '+(poem.padding+marginX)+'px',
-	 	'padding': 			poem.padding+'px',
+	 	// 'padding': 			poem.padding+'px',
 		'color': 			'#fff',
 	};
 	
