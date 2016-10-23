@@ -1,6 +1,13 @@
 jQuery(function ($){
   var howMany = 3
   var tried = 0
+  
+  //add css
+  var css = document.createElement("style");
+  css.type = "text/css";
+  css.innerHTML = "@font-face { font-family: custom; src: url('chrome-extension://geimeffhpddnekhhligdoihaeacdjohg/web/fonts/BenchNine.ttf'); }";
+  document.body.appendChild(css);
+  
   artAdder.getSelectors()
   .then(function (obj){
     var selectors = obj.selectors
