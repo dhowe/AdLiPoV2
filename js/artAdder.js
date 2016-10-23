@@ -117,22 +117,31 @@ var debug = true;
     noBigImage : function(elem) {
     //dealing with conditions when small icons are added to the Text ad Element
       var imgs = $(elem).find("img");
+      var iframes = $(elem).find("iframe");
+
       debug && console.log("[CheckImage]", elem);
 
-      if(imgs.length === 0) return true;
-      else{
+      if(imgs.length === 0 && iframes.length === 0) 
+        return true;
+      else if(iframes.length != 0) {
+        debug && console.log("[Ignore] Iframe Inside", elem);
+        return false;
+      }
+      else if(imgs.length != 0){
+        
+        for(var i = 0; i < imgs.length; i++) {
 
-        for(var i = 0; i < imgs.length; i++){
-
-          if(imgs[i].offsetWidth > 15 || imgs[i].offsetHeight > 15){
-            debug && console.log("[Ignore] Image/Iframe Inside", elem);
+          if(imgs[i].offsetWidth > 15 || imgs[i].offsetHeight > 15) {
+            debug && console.log("[Ignore] Image Inside", elem);
             return false;
           }
             
         }
+        //no image larger than 15*15px
         return true;
+       
       }
-
+       
     },
 
     // abstract storage for different browsers

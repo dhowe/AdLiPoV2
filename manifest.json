@@ -33,6 +33,9 @@
         "all_frames": true
     }
   ],
+  "web_accessible_resources":[
+    "web/fonts/BenchNine.ttf"
+    ],
   "background": {
     "page": "background.html"
   }
