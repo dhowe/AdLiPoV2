@@ -40,6 +40,10 @@ function injectAd(sel, w, h, m) {
 			// console.log('currentMarginX: '+currentMarginX);
 			// marginX += currentMarginX;
 			
+			//recalculate width & height according to padding
+			w = w - 2 * poem.padding;
+			h = h - 2 * poem.padding;
+
 			$(sel).parent().parent().css({ // div css
 			 	//'margin': 			'0px 0px 0px '+marginX+'px',		
 				'display': 			'block', 
@@ -63,7 +67,7 @@ function injectAd(sel, w, h, m) {
 		'line-height':  	(poem.leading/100 * poem.fontSize)+'px', 
 		'fontSize':  		poem.fontSize+'px', 
 	 	//'padding': 			'0px 0px 0px '+(poem.padding+marginX)+'px',
-	 	// 'padding': 			poem.padding+'px',
+	 	'padding': 			poem.padding+'px',
 		'color': 			'#fff',
 	};
 	
