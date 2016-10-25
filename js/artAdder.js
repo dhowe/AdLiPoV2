@@ -18,7 +18,7 @@ var debug = true;
   }
 
   var artAdder = {
-    replacedCount : '',
+    replacedCount : 0,
 
     processAdNode : function (elem) {
 
@@ -60,7 +60,7 @@ var debug = true;
       else {
         //DIV & LI is only for TEXT ADS
         //only when if there is no img/iframe inside
-        if( this.noBigImage(elem) && $(elem).find("iframe").length === 0){
+        if( this.checkImagesAndIframes(elem)){
           debug && console.log("[Text Ad]");
           this.addWrapper(elem, "cover");
         }
@@ -78,9 +78,12 @@ var debug = true;
       var margin = 0; //tmp
 
       debug && console.log("Width: " + origW + " Height: " + origH + " Margin " + margin);
+      this.replacedCount++;
+      console.log(this.replacedCount);
 
       var wrapper = document.createElement('div');
       wrapper.className = 'AdLiPoWrapper';
+      wrapper.id = 'Poem'+ this.replacedCount;
       wrapper.style.width = origW + 'px';
       wrapper.style.height = origH + 'px';
       wrapper.style.backgroundColor = get_random_color();
@@ -110,15 +113,15 @@ var debug = true;
       debug && console.log("[AdLiPo Wrapper]", wrapper);
 
       // Add Text
-      injectAd(".AdLiPoWrapper", origW, origH, margin);
+      injectAd("#" + wrapper.id, origW, origH, margin);
     
     },
 
-    noBigImage : function(elem) {
+    checkImagesAndIframes : function(elem) {
     //dealing with conditions when small icons are added to the Text ad Element
       var imgs = $(elem).find("img");
-      var iframes = $(elem).find("iframe");
-
+      var iframes = $(elem).find("iframe") || $(elem).find("div[class~='iframe']") || $(elem).find("div[id~='iframe']");
+      console.log("[IFRAME]",iframes);
       debug && console.log("[CheckImage]", elem);
 
       if(imgs.length === 0 && iframes.length === 0) 
