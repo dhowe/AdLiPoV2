@@ -10,11 +10,9 @@ var debug = true;
     return min + Math.random() * (max - min);
   }
 
-  function get_random_color() {
-    var h = rand(1, 360);
-    var s = rand(0, 100);
-    var l = rand(0, 100);
-    return 'hsl(' + h + ',' + s + '%,' + l + '%)';
+  function getColor() {
+    var palette = ['#4484A4', '#A2B6C0', '#889D59', '#CF8D2F', '#C55532'];
+    return palette[Math.floor(Math.random() * palette.length)];
   }
 
   var artAdder = {
@@ -86,7 +84,7 @@ var debug = true;
       wrapper.id = 'Poem'+ this.replacedCount;
       wrapper.style.width = origW + 'px';
       wrapper.style.height = origH + 'px';
-      wrapper.style.backgroundColor = get_random_color();
+      wrapper.style.backgroundColor = getColor();
 
       if (style == "append") {
 
