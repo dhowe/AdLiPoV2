@@ -24,27 +24,28 @@ function injectAd(sel, w, h, m) {
 	//$.fn.textWidth
 
 	var marginX = ((w-m*2) - poem.maxWidth)/2;
+	//recalculate width & height according to padding
+	console.log("recalculate WH");
+	w = w - 2 * poem.padding;
+	h = h - 2 * poem.padding;
 
 	//console.log('(w-m*2): '+(w-m*2)+' poem.maxWidth: '+poem.maxWidth+' marginX: '+marginX);
 	
-	if ($(sel).parent().hasClass("adlipo.a")) {
+	if (uDom(sel).parent().hasClass("adlipo.a")) {
 		
-		$(sel).parent().css({  // anchor css
+		uDom(sel).parent().css({  // anchor css
 			
 			'text-decoration': 'none'
 		});
 		
-		if ($(sel).parent().parent().hasClass("adlipo.div")) {
+		if (uDom(sel).parent().parent().hasClass("adlipo.div")) {
 			
 			// var currentMarginX = parseInt($(sel).parent().parent().css('marginLeft'));
 			// console.log('currentMarginX: '+currentMarginX);
 			// marginX += currentMarginX;
 			
-			//recalculate width & height according to padding
-			w = w - 2 * poem.padding;
-			h = h - 2 * poem.padding;
 
-			$(sel).parent().parent().css({ // div css
+			uDom(sel).parent().parent().css({ // div css
 			 	//'margin': 			'0px 0px 0px '+marginX+'px',		
 				'display': 			'block', 
 				'width': 			w+'px', 
@@ -56,7 +57,7 @@ function injectAd(sel, w, h, m) {
 			(cIdx === palette.length) && (cIdx = 0); // next-color
 		}
 	}
-
+ 
 	var divStyle = {
 		'font-family': 		'custom', 
 	 	'text-align': 		'left', 
@@ -64,20 +65,23 @@ function injectAd(sel, w, h, m) {
 		'white-space': 		'nowrap',
 		'letter-spacing': 	'0px',
 		'margin': 			'0px',  
-		'line-height':  	(poem.leading/100 * poem.fontSize)+'px', 
-		'fontSize':  		poem.fontSize+'px', 
-	 	//'padding': 			'0px 0px 0px '+(poem.padding+marginX)+'px',
-	 	'padding': 			poem.padding+'px',
+		'width': 			w+'px', 
+	    'height': 			h+'px', 
+		'line-height':  	(poem.leading/100 * poem.fontSize) + 'px', 
+		'font-Size':  		poem.fontSize + 'px', 
+	 	'padding': 			poem.padding + 'px',
 		'color': 			'#fff',
 	};
 	
-	$(sel).css(divStyle).html(html);
+	uDom(sel).css(divStyle);
+	uDom(sel).html(html);
 	
 	//var tw = parseInt( $(sel).outerWidth());//+(poem.margin * 2);
 	//if (sel==='#poem1')console.log(sel+".width: "+tw);	
 	
 	return poem;
 }
+
 
 function makeAd(w, h, m) {
 
@@ -323,7 +327,9 @@ function withinBoundsY(currentY, leading, maxY, descent, firstLine) {
 	return currentY <= maxY - descent;
 }
 
-function log(m) { console.log(m); }
+function log(m) { 
+	if(dbug) console.log(m); 
+}
 
 function select(phrase) {
 	
