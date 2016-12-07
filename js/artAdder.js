@@ -1,4 +1,4 @@
-var debug = true;
+var debug = false;
 
 (function() {
 
@@ -39,15 +39,16 @@ var debug = true;
       }
 
       //Step3: Check if the element has already been replaced with AdLiPo wrapper
-
-      // if( elem.tagName == 'DIV' && elem.find('.AdLiPoWrapper').length>0) 
-      // console.log("child",elem.find(img))
-      if ($(elem).data('replaced')) {
-        reason = "Duplicate";
-        goodBye = true;
-      } 
-      $(elem).data('replaced', true);
-
+      
+      if (elem.classList.value.indexOf("AdLiPo") >= 0) {
+          reason = "Duplicate";
+          goodBye = true;
+      }
+      else{
+         elem.className += ' AdLiPo';
+      }
+     
+      
       //Ignore elements that doesn't match the requirements
       if (debug && goodBye) console.log("[Ignore] " + reason);
       if (goodBye) return;
@@ -73,11 +74,10 @@ var debug = true;
 
       var origW = elem.offsetWidth;
       var origH = elem.offsetHeight;
-      var margin = 0; //tmp
+      var margin = 5; //tmp
 
       debug && console.log("Width: " + origW + " Height: " + origH + " Margin " + margin);
       this.replacedCount++;
-      console.log(this.replacedCount);
 
       var wrapper = document.createElement('div');
       wrapper.className = 'AdLiPoWrapper';
@@ -93,7 +93,7 @@ var debug = true;
         debug && console.log("Append Wrapper To Parent:",elem.parentElement);
         elem.parentElement.appendChild(wrapper);
 
-        $(elem).hide();
+        elem.style.display = 'none'; 
 
       }
 
@@ -117,10 +117,10 @@ var debug = true;
 
     checkImagesAndIframes : function(elem) {
     //dealing with conditions when small icons are added to the Text ad Element
-      var imgs = $(elem).find("img");
-      var iframes = $(elem).find("iframe") || $(elem).find("div[class~='iframe']") || $(elem).find("div[id~='iframe']");
-      console.log("[IFRAME]",iframes);
-      debug && console.log("[CheckImage]", elem);
+    var imgs =  elem.getElementsByTagName('img');
+      var iframes = elem.getElementsByTagName("iframe");
+      //|| $(elem).find("div[class~='iframe']") || $(elem).find("div[id~='iframe']");
+      debug && console.log("[Check Image & Iframes]", elem);
 
       if(imgs.length === 0 && iframes.length === 0) 
         return true;
@@ -147,51 +147,69 @@ var debug = true;
 
     // abstract storage for different browsers
     localSet : function (key, thing) {
-      var d = Q.defer();
-      if (typeof chrome !== 'undefined') {
-        var save = {};
-        save[key] = thing;
-        chrome.storage.local.set(save, d.resolve);
-      }
-      return d.promise;
+      var d = new Promise(
+          function(resolve, reject) {
+              if (typeof chrome !== 'undefined') {
+                  var save = {};
+                  save[key] = thing;
+                  chrome.storage.local.set(save, resolve);
+              }
+          });
+      return d;
     },
 
     localGet : function (key) {
-      var d = Q.defer();
-      if (typeof chrome !== 'undefined') {
-        chrome.storage.local.get(key, d.resolve);
-      }
-      return d.promise;
+      var d = new Promise(
+          function(resolve, reject) {
+              if (typeof chrome !== 'undefined') {
+                  chrome.storage.local.get(key, resolve);
+              }
+          });
+      return d;
     },
 
-    fetchSelectorList : function () {
-      debug && console.log("fetching easyList");
-      $.ajax({
-        url : 'https://easylist-downloads.adblockplus.org/easylist.txt',
-        type : 'get',
-        success : function (txt){
-          debug && console.log("seccessfully get the list!");
-          var txtArr = txt.split("\n").reverse() ;
-          var selectors = txtArr.filter(function (line) {
-            return /^##/.test(line);
-          })
-          .map(function (line) {
-            return line.replace(/^##/, '');
-          })
+    fetchSelectorList: function() {
+      debug && console.log("Fetching easyList");
+      var request = new XMLHttpRequest();
+      //request.open('GET', 'https://easylist-downloads.adblockplus.org/easylist.txt', true);
+      request.open('GET', 'https://raw.githubusercontent.com/dhowe/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt', true);
+      request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+              // Success!
+              var txt = request.responseText;
+              debug && console.log("Seccessfully get the list!");
+              var txtArr = txt.split("\n").reverse();
+              var selectors = [], whitelist = [];
 
-          var whitelist = txtArr.filter(function (line){
-            return /^[a-z0-9]/.test(line) && !/##/.test(line);
-          })
-          .map(R.split('#@#'))
-          artAdder.localSet('selectors', {
-            selectors : selectors,
-            whitelist : whitelist
-          })
-        }
-      })
-    },
+              for (var i = 0; i < txtArr.length; i ++) {
+                  if (txtArr[i].indexOf("##") == 0) 
+                  selectors.push(txtArr[i].slice(2));
+                  else if(txtArr[i].indexOf("#@#") > 0){
+                    var pair = txtArr[i].split('#@#');
+                  whitelist.push(pair);  
+                  }
+                  
+              }
+
+              artAdder.localSet('selectors', {
+                  selectors: selectors,
+                  whitelist: whitelist
+              })
+
+          } else {
+               console.log("Server reached. Failed to get the list");
+          }
+      };
+
+      request.onerror = function() {
+          console.log("Failed to get the list");
+      };
+
+      request.send();
+  },
 
     getSelectors : function () {
+
       return artAdder.localGet('selectors').then(function (obj) {
         return obj.selectors;
       })
