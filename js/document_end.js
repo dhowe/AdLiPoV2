@@ -10,14 +10,20 @@
 
   Promise.resolve(artAdder.getSelectors())
   .then(function (obj){
-    var selectors = obj.selectors
-    var host = R.path(['location', 'host'],parent)
-    var skips = []
+    var selectors = obj.selectors;
+    var host = window.location.hostname;
+    var skips = [];
+    
     if (host) {
-      skips = obj.whitelist
-        .filter(R.pipe(R.nth(0), R.split(','), R.contains(host.replace('www.', ''))))
-        .map(R.nth(1))
+      var whitelist = obj.whitelist;
+      var domain = host.replace('www.','');
+
+      for (var i = 0; i < whitelist.length; ++i) {
+          if (whitelist[i][0].indexOf(domain) >= 0) skips.push(whitelist[i][1])
+      }
+     
     }
+    
     ;(function checkIFrames() {
 
        var myNodeList = document.querySelectorAll(selectors.join(','));
@@ -25,7 +31,7 @@
        for (var i = 0; i < myNodeList.length; ++i) {
 
            var item = myNodeList[i];
-           if (!item.matches(skips.join(','))) 
+           if (skips.length == 0 || !item.matches(skips.join(','))) 
              artAdder.processAdNode(item);
 
        }

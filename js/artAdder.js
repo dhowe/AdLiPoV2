@@ -1,4 +1,4 @@
-var debug = true;
+var debug = false;
 
 (function() {
 
@@ -74,11 +74,10 @@ var debug = true;
 
       var origW = elem.offsetWidth;
       var origH = elem.offsetHeight;
-      var margin = 0; //tmp
+      var margin = 5; //tmp
 
       debug && console.log("Width: " + origW + " Height: " + origH + " Margin " + margin);
       this.replacedCount++;
-      console.log(this.replacedCount);
 
       var wrapper = document.createElement('div');
       wrapper.className = 'AdLiPoWrapper';
@@ -121,8 +120,7 @@ var debug = true;
     var imgs =  elem.getElementsByTagName('img');
       var iframes = elem.getElementsByTagName("iframe");
       //|| $(elem).find("div[class~='iframe']") || $(elem).find("div[id~='iframe']");
-      console.log("[IFRAME]",iframes);
-      debug && console.log("[CheckImage]", elem);
+      debug && console.log("[Check Image & Iframes]", elem);
 
       if(imgs.length === 0 && iframes.length === 0) 
         return true;
@@ -173,8 +171,8 @@ var debug = true;
     fetchSelectorList: function() {
       debug && console.log("Fetching easyList");
       var request = new XMLHttpRequest();
-      request.open('GET', 'https://easylist-downloads.adblockplus.org/easylist.txt', true);
-
+      //request.open('GET', 'https://easylist-downloads.adblockplus.org/easylist.txt', true);
+      request.open('GET', 'https://raw.githubusercontent.com/dhowe/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt', true);
       request.onload = function() {
           if (request.status >= 200 && request.status < 400) {
               // Success!

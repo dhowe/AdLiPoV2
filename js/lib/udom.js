@@ -552,7 +552,6 @@ DOMList.prototype.html = function(html) {
         return i ? this.nodes[0].innerHTML : '';
     }
     while ( i-- ) {
-        console.log(i,this.nodes[i]);
         this.nodes[i].innerHTML = html;
     }
     return this;

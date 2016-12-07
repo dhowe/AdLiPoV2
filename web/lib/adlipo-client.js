@@ -10,7 +10,11 @@ checkNode();
 function injectAd(sel, w, h, m) {
 	
 	//console.log('injectAd: '+sel);
-	
+
+	//recalculate width & height according to padding
+	w = w - 2 * m;
+	h = h - 2 * m;
+
 	var html = '', poem = makeAd(w, h, m);
 	for (var i = 0, j = poem.lines.length; i < j; i++) {
 		
@@ -24,10 +28,6 @@ function injectAd(sel, w, h, m) {
 	//$.fn.textWidth
 
 	var marginX = ((w-m*2) - poem.maxWidth)/2;
-	//recalculate width & height according to padding
-	console.log("recalculate WH");
-	w = w - 2 * poem.padding;
-	h = h - 2 * poem.padding;
 
 	//console.log('(w-m*2): '+(w-m*2)+' poem.maxWidth: '+poem.maxWidth+' marginX: '+marginX);
 	
