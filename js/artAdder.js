@@ -149,21 +149,25 @@ var debug = true;
 
     // abstract storage for different browsers
     localSet : function (key, thing) {
-      var d = Q.defer();
-      if (typeof chrome !== 'undefined') {
-        var save = {};
-        save[key] = thing;
-        chrome.storage.local.set(save, d.resolve);
-      }
-      return d.promise;
+      var d = new Promise(
+          function(resolve, reject) {
+              if (typeof chrome !== 'undefined') {
+                  var save = {};
+                  save[key] = thing;
+                  chrome.storage.local.set(save, resolve);
+              }
+          });
+      return d;
     },
 
     localGet : function (key) {
-      var d = Q.defer();
-      if (typeof chrome !== 'undefined') {
-        chrome.storage.local.get(key, d.resolve);
-      }
-      return d.promise;
+      var d = new Promise(
+          function(resolve, reject) {
+              if (typeof chrome !== 'undefined') {
+                  chrome.storage.local.get(key, resolve);
+              }
+          });
+      return d;
     },
 
     fetchSelectorList: function() {
