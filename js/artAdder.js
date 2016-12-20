@@ -77,6 +77,13 @@ var debug = false;
       var margin = 5; //tmp
 
       debug && console.log("Width: " + origW + " Height: " + origH + " Margin " + margin);
+      
+      //minHeight = 18 + 5*2;
+      if (origH < 28 || origW < 50){
+        console.log("Ignore! DIV too small!");
+        return;
+      }
+
       this.replacedCount++;
 
       var wrapper = document.createElement('div');

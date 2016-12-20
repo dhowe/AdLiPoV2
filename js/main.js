@@ -10,12 +10,13 @@ if (typeof chrome !== 'undefined') {
     })
   });
 
-  chrome.runtime.onMessage.addListener(function (msg) {
-    var key = msg.msg.what
-    if (artAdder[key] && typeof artAdder[key] === 'function') {
-      artAdder[key](msg.msg[key])
-    }
-  })
+  // chrome.runtime.onMessage.addListener(function (msg) {
+  //   var key = msg.msg.what
+  //   if (artAdder[key] && typeof artAdder[key] === 'function') {
+  //     artAdder[key](msg.msg[key])
+  //   }
+  // })
+  
 }
 
 function init(event) {
