@@ -1,5 +1,5 @@
 
-var dbug = 1, test = 0;   // PROBLEM: Processing JS gives different ascent/descent than Font.js !!! TODO: make issue (for ReadersJS?)s
+var dbug = 0, test = 0;   // PROBLEM: Processing JS gives different ascent/descent than Font.js !!! TODO: make issue (for ReadersJS?)s
 var used = [], rm, historySz = 30, node = 0;
 var fontSizes = [18,21,24,28,32,40,48,56,64,72,80];
 var palette = ['#4484A4','#A2B6C0','#889D59','#CF8D2F','#C55532']; 
