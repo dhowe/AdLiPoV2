@@ -176,10 +176,8 @@ function log(m) {
 function loadFonts() {
 	if (typeof module != 'undefined' && module.exports){
 	    fonts = require('./fonts/BenchNineAll');
-	    dbug && console.log("Font loaded to content script.");
 	}
 	else{
 	    fonts = BenchNine;
-	    dbug && console.log("Set font name to BenchNine");
 	}
 }
