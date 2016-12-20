@@ -5,7 +5,7 @@ var fontSizes = [18,21,24,28,32,40,48,56,64,72,80];
 var palette = ['#4484A4','#A2B6C0','#889D59','#CF8D2F','#C55532']; 
 var cIdx = Math.floor(Math.random()*palette.length);
 var maxTries = 100, tries = 0;
-var lineHeight = 1.4;
+var lineHeightRatio = 1.4;
 
 var fonts;
 loadFonts();
@@ -83,7 +83,7 @@ function makeAd(sel, w, h, m, poem){
 		'margin': 			'0px',  
 		'width': 			w+'px', 
 	    'height': 			h+'px', 
-		'line-height':  	(lineHeight * poem.fontSize) + 'px', 
+		'line-height':  	parseInt(lineHeightRatio * poem.fontSize) + 'px', 
 		'font-Size':  		poem.fontSize + 'px', 
 	 	'padding': 			poem.padding + 'px',
 		'color': 			'#fff',
@@ -136,7 +136,7 @@ function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts)
 	return poem; 	
 }
 
-function domLayout(txt, w, h, fontSize, lineHeight){
+function domLayout(txt, w, h, fontSize){
 
 	//Step 1: Create a div/ or get the test div if already created
 	
@@ -147,17 +147,15 @@ function domLayout(txt, w, h, fontSize, lineHeight){
 		div.setAttribute('id', 'AdLiPoTestDiv');
 		// div.style.visibility = ('hidden');
 		document.getElementsByTagName("BODY")[0].appendChild(div);
-		div.style.fontFamily = "custom";
-		div.style.position = "absolute";
-		div.style.top = "0px";
-		div.style.lineHeight = lineHeight;
 	}
 	else  div = testDiv;
-
-	div.style.width = w;
-	div.style.height = h;
+    
+    var lineHeight = parseInt(lineHeightRatio * fontSize);
+    var styleString = "letter-spacing: 0px; margin: 0px; padding:0px; visibility:hidden; position:absolute; top:0; font-family:custom; ";
+        styleString += "line-height:"+ lineHeight +"px; height:" + h + "px; width:" + w + "px; font-size:" + fontSize + "px";
+	div.setAttribute("style", styleString);
 	div.innerHTML = "<span id='box' style='font-size:" + fontSize + "px'>" + txt + "</span>";
-	div.style.fontSize = fontSize;
+	
 	
    var textBox = document.getElementById("box");
       	currentW = textBox.offsetWidth;
