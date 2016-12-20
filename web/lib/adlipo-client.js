@@ -1,33 +1,40 @@
 
-var dbug = 0, test = 0;  // PROBLEM: Processing JS gives different ascent/descent than Font.js !!! TODO: make issue (for ReadersJS?)s
+var dbug = 1, test = 0;   // PROBLEM: Processing JS gives different ascent/descent than Font.js !!! TODO: make issue (for ReadersJS?)s
 var used = [], rm, historySz = 30, node = 0;
 var fontSizes = [18,21,24,28,32,40,48,56,64,72,80];
 var palette = ['#4484A4','#A2B6C0','#889D59','#CF8D2F','#C55532']; 
 var cIdx = Math.floor(Math.random()*palette.length);
 
-checkNode();
-
 function injectAd(sel, w, h, m) {
-	
-	//console.log('injectAd: '+sel);
-
-	//recalculate width & height according to padding
+     console.log("send request", sel, w, h, m);
+	 chrome.runtime.sendMessage({
+     what: "getPoem",
+     width:w,
+     height:h,
+     margin:m
+    }, function (res) {
+    
+    //recalculate width & height according to padding
 	w = w - 2 * m;
 	h = h - 2 * m;
 
-	var html = '', poem = makeAd(w, h, m);
-	for (var i = 0, j = poem.lines.length; i < j; i++) {
+    var html = '', poem = dynamicLayout(res,w,h,m,fontSizes);
+    dbug && console.log(poem);
+
+	// var html = '', poem = makeAd(w, h, m);
+	for (var i = 0, j = poem.length; i < j; i++) {
 		
-		html += poem.lines[i];
-		if (i < poem.lines.length - 1) 
+		html += poem[i];
+		if (i < poem.length - 1) 
 			html += '<br/>';
 	}
 	
 	html = html.replace(/^ */,"");
-	
+	// dbug && console.log(html);
 	//$.fn.textWidth
 
-	var marginX = ((w-m*2) - poem.maxWidth)/2;
+	// var marginX = ((w-m*2) - poem.maxWidth)/2;
+	var marginX = 0;
 
 	//console.log('(w-m*2): '+(w-m*2)+' poem.maxWidth: '+poem.maxWidth+' marginX: '+marginX);
 	
@@ -67,9 +74,9 @@ function injectAd(sel, w, h, m) {
 		'margin': 			'0px',  
 		'width': 			w+'px', 
 	    'height': 			h+'px', 
-		'line-height':  	(poem.leading/100 * poem.fontSize) + 'px', 
-		'font-Size':  		poem.fontSize + 'px', 
-	 	'padding': 			poem.padding + 'px',
+		// 'line-height':  	(poem.leading/100 * poem.fontSize) + 'px', 
+		// 'font-Size':  		poem.fontSize + 'px', 
+	 // 	'padding': 			poem.padding + 'px',
 		'color': 			'#fff',
 	};
 	
@@ -80,50 +87,13 @@ function injectAd(sel, w, h, m) {
 	//if (sel==='#poem1')console.log(sel+".width: "+tw);	
 	
 	return poem;
+    });
+	
+	//console.log('injectAd: '+sel);
+
+
 }
 
-
-function makeAd(w, h, m) {
-
-	var poem, sent,tries = 0, maxTries = 1000;
-		
-	if (!rm) rm = createModel(3);
-	
-	if (!(w && h)) poem = failure;
-		
-	//var	area = (w - m * 2) * (h - m * 2); // min=2000,max=~100000
-
-	while (!poem && ++tries < maxTries) {
-		
-		while (!isValid(sent)) {
-			
-			sent = select(rm.generateSentences(1)[0]);
-		}
-	
-		used.push(sent);
-		
-		if (used.length > historySz) used.splice(0,1);
-
-		poem = dynamicLayout(sent, w, h, m, fontSizes);
-		if (!poem) {
-			
-			log("REJECT(UNPLACEABLE): "+sent);
-			sent = null;
-		}
-		else {
-			
-			log("RESPONSE: "+ poem.lines.join(' '));
-		}
-	}
-	
-	if (!poem) {
-		
-		log("FAILED: after " + maxTries + " tries");
-		poem = failure;
-	}
-
-	return poem;
-}
 
 /* selects the largest font that fits all the content, or null if none fits */
 function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts) 
@@ -209,7 +179,6 @@ function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts)
 	return poem; 	
 }
 
-	
 /* returns true if all lines fit inside the rect */
 function layout(rlines, txt, w, h, pfont, leading) 
 {	    
@@ -327,118 +296,11 @@ function withinBoundsY(currentY, leading, maxY, descent, firstLine) {
 	return currentY <= maxY - descent;
 }
 
+
+
 function log(m) { 
 	if(dbug) console.log(m); 
 }
-
-function select(phrase) {
-	
-	if (phrase.indexOf('|') < 0) {
-		//log('Skipping non-perm:'+phrase);
-		return polish(phrase);
-	}
-	
-	// we have multiple possibilites for the word
-	var opts, endsWithPunc, last, words = phrase.split(' ');
-	for (var i = 0; i < words.length; i++) {
-		
-		if (/\|/.test(words[i])) {
-			
-			endsWithPunc = false; // check if ends with punc
-			last = words[i].charAt(words[i].length-1);
-			if (RiTa.isPunctuation(last)) {
-				
-				endsWithPunc = true;
-				words[i] = words[i].substring(0,words[i].length-1);
-			} 
-				
-			opts = words[i].split('\|');	
-			words[i] = RiTa.randomItem(opts);
-			if (words[i] && words[i].length) {
-				
-				// re-append the punctuation
-				endsWithPunc && (words[i] += last);
-			}
-			else {
-				words.splice(i,1);
-			}	
-				
-		}
-	}
-	
-	return polish(words.join(' '));
-}
-
-function polish(q) {
-	
-	q = q.replace(/\_/g,' '); // underscore->spaces
-	q = q.replace(/\?/g,'.'); // ? -> .   
-	return q.trim();
-}
-
-function isValid(q) {
-	
-	if (q && q.length && /_?Ad[^a-z]/.test(q)) { // check for 'Ad'
-	
-		var matches = q.match(/Ad/g); 
-		if (matches.length > 1) { // but only one 'Ad'
-		
-			log("REJECT(MULTIPLE_'Ad'): "+q); 
-			return false;
-		}
-		
-		if (contains(used,q)) { // and not used recently
-			
-			log("REJECT(HISTORY): "+q);
-			return false;
-		}
-		
-		return true;
-	}
-	return false;
-}
-
-function contains(arr, obj) {
-	
-    var i = arr.length;
-    while (i--) {
-       if (arr[i] === obj) {
-           return true;
-       }
-    }
-    return false;
-}
-
-function createModel(n) { 
-	
-	return RiMarkov(n).loadText(text);
-}
-
-function isNode() {
-	
-	return (typeof module != 'undefined' && module.exports);
-}
-
-
-function checkNode() {
-	
-	if (isNode()) {
-		
-		node = 1;
-		rita = require('../../../Documents/eclipse-workspace/RiTa/RiTaLibraryJS/src/rita.js');
-		RiMarkov = rita.RiMarkov;		
-		RiString = rita.RiString;
-		rita = require('../../../Documents/eclipse-workspace/RiTa/RiTaLibraryJS/src/ritext.js');
-		RiText = rita.RiText;
-		fonts = require('./fonts/BenchNineAll');
-	}
-	else {
-		
-		fonts = BenchNine;
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
 
 var failure = {
 	
@@ -452,26 +314,3 @@ var failure = {
 
 
 RiText.defaults.leadingFactor = 1.1;
-
-if (node) {
-	
-	txt = "This age|gun|boy age|gun|boy.";	
-	dumpLayout(dynamicLayout(txt, 230, 20, fontSizes));
-	
-//	return;
-	
-	dumpLayout(dynamicLayout(txt, 230, 100, fontSizes));
-	dumpLayout(dynamicLayout(txt, 230, 187, fontSizes));
-	dumpLayout(dynamicLayout(txt, 230, 188, fontSizes));
-	dumpLayout(dynamicLayout(txt, 230, 308, fontSizes));
-	dumpLayout(dynamicLayout(txt, 230, 1300, fontSizes));
-
-	function dumpLayout(p) {
-		if (p != null) { 
-			log('\nFONT: '+p.font+''+p.fontSize+'/'+(p.leading/100.0 * p.fontSize)+"\n");
-			for (var i=0,j=p.lines.length; i<j; i++)
-	  			log(i+") "+p.lines[i]);
-	  	}
-	}
-}
-	

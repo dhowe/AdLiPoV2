@@ -54,7 +54,7 @@ var debug = false;
       if (goodBye) return;
       
       if (elem.tagName == 'IFRAME' || elem.tagName == 'IMG' ) {
-        this.addWrapper(elem, "append");
+        this.addWrapper(elem, "cover");
       }
       else {
         //DIV & LI is only for TEXT ADS
