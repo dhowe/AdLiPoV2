@@ -47,7 +47,8 @@ var debug = false;
       else{
          elem.className += ' AdLiPo';
       }
-     
+
+
       
       //Ignore elements that doesn't match the requirements
       if (debug && goodBye) console.log("[Ignore] " + reason);
@@ -92,6 +93,12 @@ var debug = false;
       wrapper.style.width = origW + 'px';
       wrapper.style.height = origH + 'px';
       wrapper.style.backgroundColor = getColor();
+
+      //if the parentElement is a tag -- avoid any a tag css from the site
+      console.log(elem.parentElement.tagName);
+      if (elem.parentElement.tagName === "A") {
+         elem = elem.parentElement;
+      }
 
       if (style == "append") {
 
