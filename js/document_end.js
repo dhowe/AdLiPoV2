@@ -25,7 +25,7 @@
     }
     
     ;(function checkIFrames() {
-
+       // console.log("checkIframes");
        var myNodeList = document.querySelectorAll(selectors.join(','));
 
        for (var i = 0; i < myNodeList.length; ++i) {

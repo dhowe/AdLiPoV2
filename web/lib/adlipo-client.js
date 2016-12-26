@@ -11,7 +11,6 @@ var fonts;
 loadFonts();
 
 function injectAd(sel, w, h, m, tries) {
-     console.log("send request", sel, w, h, m);
 	 chrome.runtime.sendMessage({
      what: "getPoem",
      sel: sel,
@@ -20,15 +19,12 @@ function injectAd(sel, w, h, m, tries) {
      margin:m
     }, function (res) {
     
-    //recalculate width & height according to padding
-	w = w - 2 * m;
-	h = h - 2 * m;
+
 	if(tries == undefined) tries = 0;
     
     var poem = dynamicLayout(res.poem, w, h, m, fontSizes);
 
     //if poem === null, regenerate a poem
-    console.log(tries, maxTries);
     if(poem === null && tries < maxTries){
     	dbug && console.log("Text is too long, regenerate!" + (++tries));
     	injectAd(sel, w, h, 0, tries);
@@ -44,7 +40,7 @@ function injectAd(sel, w, h, m, tries) {
 
 function makeAd(sel, w, h, m, poem){
 
-	var html = poem.lines;
+	var html = '<span style="display:block;padding:' + m + 'px" >' +poem.lines + '</span>';
 	
 	html = html.replace(/^ */,""); //?
 
@@ -80,18 +76,18 @@ function makeAd(sel, w, h, m, poem){
 		'overflow': 		'visible',
 		// 'white-space': 		'nowrap',
 		'letter-spacing': 	'0px',
-		'margin': 			'0px',  
+		'margin': 			'0px',
+		'padding':          '0px',
 		'width': 			w+'px', 
 	    'height': 			h+'px', 
 		'line-height':  	parseInt(lineHeightRatio * poem.fontSize) + 'px', 
 		'font-Size':  		poem.fontSize + 'px', 
-	 	'padding': 			poem.padding + 'px',
 		'color': 			'#fff',
 	};
 	
-	console.log(divStyle);
-	console.log(html);
-	console.log(sel);
+	dbug && console.log(divStyle);
+	dbug && console.log(html);
+	dbug && console.log(sel);
 	uDom(sel).css(divStyle);
 	uDom(sel).html(html);
 	
@@ -117,10 +113,10 @@ function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts)
 	
 	while (fits && szIdx < fsizes.length - 1) {
 		++szIdx;
-		console.log("dynamicLayout", txt, w, h, fsizes[szIdx]);
+		dbug && console.log("dynamicLayout", txt, w, h, fsizes[szIdx]);
 	
 		fits = domLayout(txt, actualW, actualH, fsizes[szIdx]);
-		console.log(fsizes[szIdx]+ " " + fits);
+		dbug && console.log(fsizes[szIdx]+ " " + fits);
 		if(!fits) szIdx--;
 	}
 	 
@@ -162,7 +158,7 @@ function domLayout(txt, w, h, fontSize){
       	currentH = textBox.offsetHeight;
     
     if (currentW <= w && currentH <= h){
-    	console.log("[Dom Layout]" + currentW + "," +  w + "," + currentH  + "," + h);
+    	dbug && console.log("[Dom Layout]" + currentW + "," +  w + "," + currentH  + "," + h);
     	return true;
     }
 		

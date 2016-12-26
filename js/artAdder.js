@@ -19,7 +19,7 @@ var debug = false;
     replacedCount : 0,
 
     processAdNode : function (elem) {
-
+      
       var goodBye = false;
       var reason = "";
       var tagType = ["IFRAME", "IMG", "DIV","LI"];  //A,INS?
@@ -28,7 +28,7 @@ var debug = false;
       
       //Step1: Ignore tiny tracking elements
       if (elem.offsetWidth < 2 || elem.offsetHeight < 2) {
-        reason = "Size is too small";
+        reason = "Size is too small" + elem.offsetWidth + " " + elem.offsetHeight;
         goodBye = true;
       }
       
@@ -81,7 +81,7 @@ var debug = false;
       
       //minHeight = 18 + 5*2;
       if (origH < 28 || origW < 50){
-        console.log("Ignore! DIV too small!");
+        debug && console.log("Ignore! DIV too small!");
         return;
       }
 
@@ -95,7 +95,7 @@ var debug = false;
       wrapper.style.backgroundColor = getColor();
 
       //if the parentElement is a tag -- avoid any a tag css from the site
-      console.log(elem.parentElement.tagName);
+    
       if (elem.parentElement.tagName === "A") {
          elem = elem.parentElement;
       }
@@ -125,6 +125,7 @@ var debug = false;
       debug && console.log("[AdLiPo Wrapper]", wrapper);
 
       // Add Text
+      console.log("CompatMode:" + document.compatMode);
       injectAd("#" + wrapper.id, origW, origH, margin);
     
     },
@@ -186,6 +187,7 @@ var debug = false;
       debug && console.log("Fetching easyList");
       var request = new XMLHttpRequest();
       //request.open('GET', 'https://easylist-downloads.adblockplus.org/easylist.txt', true);
+      //https://raw.githubusercontent.com/dhowe/uAssets/master/filters/adnauseam.txt
       request.open('GET', 'https://raw.githubusercontent.com/dhowe/uAssets/master/thirdparties/easylist-downloads.adblockplus.org/easylist.txt', true);
       request.onload = function() {
           if (request.status >= 200 && request.status < 400) {

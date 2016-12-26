@@ -149,7 +149,7 @@ function checkNode() {
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
      
-    console.log("Request from" + request.sel);
+    log("Request from" + request.sel);
 
     if (request.what === 'getPoem') {
       var w = request.width,
@@ -157,7 +157,7 @@ chrome.runtime.onMessage.addListener(
           m = request.margin;
 
       var poem = makeAd(w, h, m) 
-      console.log('POEM: ', poem);
+      log('POEM: ', poem);
 
       sendResponse({
         what: 'responsePoem',
