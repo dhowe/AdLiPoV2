@@ -10,6 +10,18 @@ if (typeof chrome !== 'undefined') {
     })
   });
 
+  chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+       
+      if (request.what === 'getSelectors') {
+        artAdder.localGet('selectors').then(function (obj) {
+          sendResponse(obj.selectors);
+        });
+      }
+
+      return true;
+  });
+
   // chrome.runtime.onMessage.addListener(function (msg) {
   //   var key = msg.msg.what
   //   if (artAdder[key] && typeof artAdder[key] === 'function') {
@@ -20,5 +32,5 @@ if (typeof chrome !== 'undefined') {
 }
 
 function init(event) {
-  artAdder.fetchSelectorList()
+  artAdder.prepareSelectors();
 }
