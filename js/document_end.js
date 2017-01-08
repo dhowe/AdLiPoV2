@@ -12,6 +12,7 @@
    chrome.runtime.sendMessage({
      what: "getSelectors"
     }, function (obj) {
+      // console.log(obj);
     var selectors = obj.selectors;
     var host = window.location.hostname;
     var skips = [];
@@ -20,7 +21,7 @@
       var whitelist = obj.whitelist;
       var domain = host.replace('www.','');
 
-      for (var i = 0; i < whitelist.length; ++i) {
+      for (var i = 0; i < whitelist.length-1; ++i) {
           if (whitelist[i][0].indexOf(domain) >= 0) skips.push(whitelist[i][1])
       }
      

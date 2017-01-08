@@ -149,21 +149,22 @@ function checkNode() {
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
      
-    log("Request from " + request.sel);
-
     if (request.what === 'getPoem') {
-      var w = request.width,
-          h = request.height,
-          m = request.margin;
 
-      var poem = makeAd(w, h, m) 
-      log('POEM: ', poem);
+    log("Request from " + request.sel);
+    
+	  var w = request.width,
+	      h = request.height,
+	      m = request.margin;
 
-      sendResponse({
-        what: 'responsePoem',
-        target: request.sel,
-        poem: poem
-      });
+	  var poem = makeAd(w, h, m) 
+	  log('POEM: ' + poem);
+
+	  sendResponse({
+	    what: 'responsePoem',
+	    target: request.sel,
+	    poem: poem
+	  });
 
     }
     return true;

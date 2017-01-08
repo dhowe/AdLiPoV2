@@ -1,12 +1,16 @@
 var dbug = false;
-var listURLs = [
-  'https://easylist-downloads.adblockplus.org/easylist.txt',
-  'https://raw.githubusercontent.com/dhowe/uAssets/master/filters/adnauseam.txt'
-];
-var lists = [
-   'lists/adnauseam.txt',
-   'lists/easylist.txt'
-];
+var updateInterval = threeDays = 1000 * 60 * 60 * 24 * 3;
+
+var lists = {
+  easylist: {
+    local: 'lists/easylist.txt',
+    url: "https://easylist-downloads.adblockplus.org/easylist.txt"
+  },
+  adnauseam: {
+    local: 'lists/adnauseam.txt',
+    url: "https://raw.githubusercontent.com/dhowe/uAssets/master/filters/adnauseam.txt"
+  }
+};
 
 (function() {
 
@@ -20,13 +24,26 @@ var lists = [
     localSet : function (obj) {
       var d = new Promise(
           function(resolve, reject) {
+              if (typeof chrome !== 'undefined' && obj != undefined) {
+                  var save = {};
+                  save[obj[0]] = obj[1];
+                  dbug && console.log("Save " + obj[0] + " to local storage.");
+                  chrome.storage.local.set(save, resolve);
+              }
+          });
+      return d;
+    },
+
+    addSelectors : function (obj) {
+      var d = new Promise(
+          function(resolve, reject) {
               if (typeof chrome !== 'undefined') {
                 var key, thing, save = {};
                 if(obj){
                   key = obj[0];
                   thing = obj[1];
                 }
-                artAdder.localGet('selectors').then(function (obj) {
+                chrome.storage.local.get('selectors').then(function (obj) {
                   dbug && console.log("Add selectors to local Storage");
                   if(obj.selectors != undefined){
                     //merge array
@@ -48,20 +65,12 @@ var lists = [
       return d;
     },
 
-    localGet : function (key) {
-      var d = new Promise(
-
-          function (resolve, reject) {
-              if (typeof chrome !== 'undefined')
-                  chrome.storage.local.get(key, resolve);
-          });
-
-      return d;
-    },
-
-    fetchSelectorLists: function(urls, callback) {
-      for(var i = 0; i < urls.length; i++)
-        artAdder.fetchSelectorList(urls[i]);
+    fetchSelectorLists: function(urls) {
+      for(var list in lists){
+         artAdder.fetchSelectorList(lists[list].url)
+              .then(artAdder.processSelectors)
+              .then(artAdder.localSet);
+      }
     },
 
     fetchSelectorList: function(url) {
@@ -73,7 +82,7 @@ var lists = [
               if (request.status >= 200 && request.status < 400) {
                   // Success!
                   resolve(request.responseText);
-                  // console.log("Successfully fetch the list from" + url);
+                  dbug && console.log("Successfully fetch the list from" + url);
                   
               } else {
                   reject(request.statusText);
@@ -88,9 +97,9 @@ var lists = [
       return d;
     },
 
-    loadListsFromLocal: function(urls) {
-      for(var i = 0; i < urls.length; i++){
-         artAdder.loadListFromLocal(urls[i])
+    loadListsFromLocal: function(lists) {
+      for(var list in lists){
+         artAdder.loadListFromLocal(lists[list].local)
               .then(artAdder.processSelectors)
               .then(artAdder.localSet);
       }
@@ -102,8 +111,9 @@ var lists = [
                url: chrome.runtime.getURL(url),
                type: 'get',
                success: function(data) {
-                   dbug && console.log("Load list from Local: " + url);
-                   resolve(data);
+                   var key = getKeyFromUrl(url);
+                   dbug && console.log("Load list from Local: " + key);
+                   resolve({key: key,data: data});
                },
                error: function(e) {
                    resolve({
@@ -118,15 +128,17 @@ var lists = [
 
     },
 
-    processSelectors: function (data){
+    processSelectors: function (obj){
     //Todo: a better Selectors processor
     //The current one is very robust, it ignores all the site specific rules
+    
        var d = new Promise(function(resolve, reject) {
+       
+        var txt = obj.data, key = obj.key,
+            txtArr = txt.split("\n").reverse(),
+            selectors = [], whitelist = [];
 
-        var txt = data;
-        dbug && console.log("Process Selectors");
-        var txtArr = txt.split("\n").reverse();
-        var selectors = [], whitelist = [];
+         dbug && console.log("Process Selectors: " + key + " " + txt.length);
 
         for (var i = 0; i < txtArr.length; i ++) {
             //Temp, doesn't allow rules with '/' from adnauseam.txt, causing troubles when joining all the selectors
@@ -139,11 +151,10 @@ var lists = [
             }   
         }
         
-        var result = ['selectors', {
+        var result = [key, {
                   selectors: selectors,
                   whitelist: whitelist
-              }]
-
+              }];
         resolve(result);
 
       });
@@ -151,17 +162,42 @@ var lists = [
       return d;
     },
 
+     updateCheck: function () {
+
+        var lastCheckTime = chrome.storage.local.get('lastCheckTime', function (data) {
+
+          dbug && console.log("lastCheckTime", data.lastCheckTime);
+          if(data.lastCheckTime)
+          lastCheckTime = Date.parse(data.lastCheckTime);
+          else lastCheckTime = 0;
+
+          var currentTime = Date.now();
+          // console.log(currentTime, lastCheckTime, updateInterval);
+          if (currentTime - lastCheckTime < updateInterval) {
+
+            dbug && console.log("No need to update");
+
+            return;
+
+          } else {
+            var time = new Date().toLocaleString();
+            artAdder.fetchSelectorLists(lists);
+            chrome.storage.local.set({lastCheckTime: time});
+          }
+      });
+
+    },
+
     prepareSelectors: function() {
       dbug && console.log("Prepare Selectors");
       
-      artAdder.localGet('selectors').then(function (obj) {
-        dbug && console.log(obj.selectors);
-        if(obj.selectors === undefined){
-          dbug && console.log("No selectors in storage");
-          artAdder.loadListsFromLocal(lists);
-        }
-      });
-        
+
+          chrome.storage.local.get(Object.keys(lists), function(obj) {
+              dbug && console.log(obj);
+              if (obj.lastCheckTime === undefined) {
+                  artAdder.loadListsFromLocal(lists);
+              }
+          });
 
     }
 
@@ -170,8 +206,13 @@ var lists = [
   window.artAdder = artAdder;
 })();
 
-
 //////////////////////////////////////////////////////////////////////////////////////////
 
+function getKeyFromUrl(url) {
+  var sections = url.split('/');
+  var key = sections[sections.length-1];
+  key = key.slice(0,key.length-4);
+  return key;
+}
 
 

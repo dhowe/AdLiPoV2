@@ -4,18 +4,27 @@ if (typeof chrome !== 'undefined') {
   });
 
   chrome.runtime.onStartup.addListener(function(event) {
-    init(event)
-    .then(function (){
-      return artAdder.localGet('disableAutoUpdate')
-    })
+    init(event);
   });
 
   chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
        
       if (request.what === 'getSelectors') {
-        artAdder.localGet('selectors').then(function (obj) {
-          sendResponse(obj.selectors);
+        chrome.storage.local.get(Object.keys(lists),function (data) {
+    
+          var selectors = [], whitelist = [];
+         
+          for(key in data){
+            selectors = selectors.concat(data[key].selectors);
+            whitelist = whitelist.concat(data[key].whitelist);
+          }
+
+          // console.log(selectors,whitelist);
+           sendResponse({
+                  selectors: selectors,
+                  whitelist: whitelist
+              });
         });
       }
 
@@ -33,4 +42,5 @@ if (typeof chrome !== 'undefined') {
 
 function init(event) {
   artAdder.prepareSelectors();
+  artAdder.updateCheck();
 }
