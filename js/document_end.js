@@ -6,7 +6,7 @@
   //add css for font
   var css = document.createElement("style");
   css.type = "text/css";
-  css.innerHTML = "@font-face { font-family: custom; src: url('chrome-extension://geimeffhpddnekhhligdoihaeacdjohg/web/fonts/BenchNine.ttf'); }";
+  css.innerHTML = "@font-face { font-family: custom; src: url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.ttf'); }";
   document.body.appendChild(css);
   
    chrome.runtime.sendMessage({
