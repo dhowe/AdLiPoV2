@@ -6,13 +6,21 @@
       replacedCount = 0,
       dbug = false;
   
-  //add css for font
-  var css = document.createElement("style");
-  css.type = "text/css";
-  css.innerHTML = "@font-face { font-family: custom; src: url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.ttf'); }";
-  document.body.appendChild(css);
-  
-   chrome.runtime.sendMessage({
+  var fontUrl = "url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.ttf')";
+  var BenchFontFace = new FontFace('custom', fontUrl);
+  document.fonts.add(BenchFontFace);
+  BenchFontFace.load();
+    //Wait for fonts to load
+  BenchFontFace.loaded.then(function(){
+    dbug && logFontInfo();
+    checkNodes();
+  })
+
+function checkNodes(){
+
+     dbug && logFontInfo();
+
+     chrome.runtime.sendMessage({
      what: "getSelectors"
     }, function (obj) {
       // console.log(obj);
@@ -34,19 +42,22 @@
 
        var myNodeList = document.querySelectorAll(selectors.join(','));
 
-       for (var i = 0; i < myNodeList.length; ++i) {
+          for (var i = 0; i < myNodeList.length; ++i) {
 
-           var item = myNodeList[i];
-           if (skips.length == 0 || !item.matches(skips.join(','))) 
-             processAdNode(item);
+              var item = myNodeList[i];
+              if (skips.length == 0 || !item.matches(skips.join(',')))
+                  processAdNode(item);
 
-       }
+          }
 
-      if (++tried < howMany) {
-        setTimeout(checkIFrames, 3000)
-      }
+          if (++tried < howMany) {
+              setTimeout(checkIFrames, 3000)
+          }
+ 
+
     })()
   })
+}
 
 function processAdNode(elem){
 
@@ -191,5 +202,16 @@ function getColor() {
     var palette = ['#4484A4', '#A2B6C0', '#889D59', '#CF8D2F', '#C55532'];
     return palette[Math.floor(Math.random() * palette.length)];
   }
+
+function logFontInfo() {
+    console.log('There are', document.fonts.size, 'FontFaces loaded.\n');
+    for (var fontFace of document.fonts.values()) {
+        console.log('FontFace:');
+        for (var property in fontFace) {
+            console.log('  ' + property + ': ' + fontFace[property]);
+        }
+
+    }
+}
 
 })();

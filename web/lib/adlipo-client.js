@@ -5,7 +5,7 @@ var fontSizes = [18,21,24,28,32,40,48,56,64,72,80];
 var palette = ['#4484A4','#A2B6C0','#889D59','#CF8D2F','#C55532']; 
 var cIdx = Math.floor(Math.random()*palette.length);
 var maxTries = 100, tries = 0;
-var lineHeightRatio = 1.4;
+var lineHeightRatio = 1.1;
 
 var fonts;
 loadFonts();
@@ -39,8 +39,11 @@ function injectAd(sel, w, h, m, tries) {
 }
 
 function makeAd(sel, w, h, m, poem){
+   
+    var innerW = w - 2*m;
+        innerH = h - 2*m;
 
-	var html = '<div class="adlipo.p" style="width:100%;height:100%;padding:' + m + 'px" >' +poem.lines + '</div>';
+	var html = '<div class="adlipo.p" style="width:' + innerW + ';height:' + innerH + ';padding:' + m + 'px" >' +poem.lines + '</div>';
     html = '<a class="adlipo.a" title="AdLiPo" target="new" href="http://rednoise.org/adlipo/" style="text-decoration: none;color:white;">' + html + '</a>';
 	// html = html.replace(/^ */,""); //?
 
@@ -54,7 +57,7 @@ function makeAd(sel, w, h, m, poem){
 		'overflow': 		'visible',
 		// 'white-space': 		'nowrap',
 		'letter-spacing': 	'0px',
-		'margin': 			'0px',
+		// 'margin': 			'0px',
 		'padding':          '0px',
 		'width': 			w+'px', 
 	    'height': 			h+'px', 
@@ -90,7 +93,7 @@ function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts)
 	if (!fits) return null; 
 	
 	while (fits && szIdx < fsizes.length - 1) {
-		++szIdx;
+		szIdx++;
 		dbug && console.log("dynamicLayout", txt, w, h, fsizes[szIdx]);
 	
 		fits = domLayout(txt, actualW, actualH, fsizes[szIdx]);
@@ -111,12 +114,11 @@ function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts)
 }
 
 function domLayout(txt, w, h, fontSize){
-
+    
 	//Step 1: Create a div/ or get the test div if already created
 	
-	var div, testDiv;
-	testDiv = document.getElementById("AdLiPoTestDiv");
-	if(testDiv == null){
+	var div, testDiv = document.getElementById("AdLiPoTestDiv");
+	if (testDiv === null) {
 		div = document.createElement("div");
 		div.setAttribute('id', 'AdLiPoTestDiv');
 		// div.style.visibility = ('hidden');
@@ -124,23 +126,26 @@ function domLayout(txt, w, h, fontSize){
 	}
 	else  div = testDiv;
     
-    var lineHeight = parseInt(lineHeightRatio * fontSize);
-    var styleString = "letter-spacing: 0px; margin: 0px; padding:0px; visibility:hidden; position:absolute; top:0; font-family:custom; ";
+    var lineHeight = parseInt(lineHeightRatio * fontSize),
+        styleString = "letter-spacing: 0px; margin: 0px; padding:0px; position:absolute; top:0; font-family:custom; ";
         styleString += "line-height:"+ lineHeight +"px; height:" + h + "px; width:" + w + "px; font-size:" + fontSize + "px";
+	
 	div.setAttribute("style", styleString);
-	div.innerHTML = "<span id='box' style='font-size:" + fontSize + "px'>" + txt + "</span>";
+	div.innerHTML = "<span id='box' style='background-color:rgba(200,200,200,.3);color:black; font-size:" + fontSize + "px'>" + txt + "</span>";
 	
 	
-   var textBox = document.getElementById("box");
-      	currentW = textBox.offsetWidth;
-      	currentH = textBox.offsetHeight;
-    
-    if (currentW <= w && currentH <= h){
-    	dbug && console.log("[Dom Layout]" + currentW + "," +  w + "," + currentH  + "," + h);
+   var textBox = document.getElementById("box"),
+       currentW = textBox.offsetWidth,
+       currentH = textBox.offsetHeight;
+     
+    if (currentW <= w && currentH <= h) {
+    	dbug && console.log("[Dom Layout]:FontSize"+ fontSize + " " + currentW + "," +  w + "," + currentH  + "," + h);
     	return true;
     }
-		
-	else  return false;
+	else{
+		dbug && console.log("Font Too big"+ fontSize + " " + currentW + "," +  w + "," + currentH  + "," + h);
+		return false;
+	}
 }
 
 function log(m) { 
