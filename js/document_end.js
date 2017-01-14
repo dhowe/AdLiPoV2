@@ -6,13 +6,18 @@
       replacedCount = 0,
       dbug = false;
   
-  //add css for font
-  var css = document.createElement("style");
-  css.type = "text/css";
-  css.innerHTML = "@font-face { font-family: custom; src: url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.ttf'); }";
-  document.body.appendChild(css);
-  
-   chrome.runtime.sendMessage({
+  var fontUrl = "url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.ttf')";
+  var BenchFontFace = new FontFace('adlipoFont', fontUrl);
+  document.fonts.add(BenchFontFace);
+  BenchFontFace.load();
+    //Wait for fonts to load
+  BenchFontFace.loaded.then(function(){
+    // dbug && logFontInfo();
+    checkNodes();
+  })
+
+function checkNodes(){
+     chrome.runtime.sendMessage({
      what: "getSelectors"
     }, function (obj) {
       // console.log(obj);
@@ -31,40 +36,45 @@
     }
     
     ;(function checkIFrames() {
-
+       dbug && console.log("[TRIED]" + tried);
        var myNodeList = document.querySelectorAll(selectors.join(','));
 
-       for (var i = 0; i < myNodeList.length; ++i) {
+          for (var i = 0; i < myNodeList.length; ++i) {
 
-           var item = myNodeList[i];
-           if (skips.length == 0 || !item.matches(skips.join(','))) 
-             processAdNode(item);
+              var item = myNodeList[i];
+              if (skips.length == 0 || !item.matches(skips.join(',')))
+                  processAdNode(item);
 
-       }
+          }
 
-      if (++tried < howMany) {
-        setTimeout(checkIFrames, 3000)
-      }
+          if (++tried < howMany) {
+              setTimeout(checkIFrames, 3000)
+          }
+ 
+
     })()
   })
+}
 
 function processAdNode(elem){
-
+  
       var goodBye = false;
       var reason = "";
       var tagType = ["IFRAME", "IMG", "DIV","LI"];  //A,INS?
 
       dbug && console.log("[Process Node]", elem);
       
-      //Step1: Ignore tiny tracking elements
-      if (elem.offsetWidth < 2 || elem.offsetHeight < 2) {
-        reason = "Size is too small" + elem.offsetWidth + " " + elem.offsetHeight;
-        goodBye = true;
-      }
       
-      //Step2: Check the tag
+      
+      //Step1: Check the tag
       if (tagType.indexOf(elem.tagName) < 0) {
         reason = "Type not match";
+        goodBye = true;
+      }
+
+      //Step2: Ignore tiny tracking images
+      if (elem.tagName === "IMG" && (elem.offsetWidth < 2 || elem.offsetHeight < 2)) {
+        reason = "Size is too small" + elem.offsetWidth + " " + elem.offsetHeight;
         goodBye = true;
       }
 
@@ -73,9 +83,6 @@ function processAdNode(elem){
       if (elem.classList.value.indexOf("AdLiPo") >= 0) {
           reason = "Duplicate";
           goodBye = true;
-      }
-      else{
-         elem.className += ' AdLiPo';
       }
       
       //Ignore elements that doesn't match the requirements
@@ -86,12 +93,11 @@ function processAdNode(elem){
         addWrapper(elem, "append");
       }
       else {
-        //DIV & LI is only for TEXT ADS
-        //only when if there is no img/iframe inside
-        if( checkImagesAndIframes(elem)){
-          dbug && console.log("[Text Ad]");
+        //TEMP: Cover the whole div
+        // if(checkImagesAndIframes(elem)){
+        //   dbug && console.log("[Text Ad]");
           addWrapper(elem, "cover");
-        }
+        // }
       
       }
       return true;
@@ -179,6 +185,8 @@ function addWrapper(elem, style) {
        elem.appendChild(wrapper);
    }
 
+   elem.className += ' AdLiPo';
+
    dbug && console.log("[AdLiPo Wrapper]", wrapper);
 
    // Add Text
@@ -191,5 +199,16 @@ function getColor() {
     var palette = ['#4484A4', '#A2B6C0', '#889D59', '#CF8D2F', '#C55532'];
     return palette[Math.floor(Math.random() * palette.length)];
   }
+
+function logFontInfo() {
+    console.log('There are', document.fonts.size, 'FontFaces loaded.\n');
+    for (var fontFace of document.fonts.values()) {
+        console.log('FontFace:');
+        for (var property in fontFace) {
+            console.log('  ' + property + ': ' + fontFace[property]);
+        }
+
+    }
+}
 
 })();
