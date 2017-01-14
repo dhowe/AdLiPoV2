@@ -1,4 +1,4 @@
-var dbug = true;
+var dbug = false;
 var updateInterval = threeDays = 1000 * 60 * 60 * 24 * 3;
 
 var lists = {
