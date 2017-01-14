@@ -1,3 +1,6 @@
+  (function () {
+
+  'use strict';
   var howMany = 3,
       tried = 0,
       replacedCount = 0,
@@ -188,3 +191,5 @@ function getColor() {
     var palette = ['#4484A4', '#A2B6C0', '#889D59', '#CF8D2F', '#C55532'];
     return palette[Math.floor(Math.random() * palette.length)];
   }
+
+})();

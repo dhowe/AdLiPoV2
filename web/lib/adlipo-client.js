@@ -40,36 +40,14 @@ function injectAd(sel, w, h, m, tries) {
 
 function makeAd(sel, w, h, m, poem){
 
-	var html = '<span style="display:block;padding:' + m + 'px" >' +poem.lines + '</span>';
-	
-	html = html.replace(/^ */,""); //?
+	var html = '<div class="adlipo.p" style="width:100%;height:100%;padding:' + m + 'px" >' +poem.lines + '</div>';
+    html = '<a class="adlipo.a" title="AdLiPo" target="new" href="http://rednoise.org/adlipo/" style="text-decoration: none;color:white;">' + html + '</a>';
+	// html = html.replace(/^ */,""); //?
 
 	var marginX = 0;
 
 	//console.log('(w-m*2): '+(w-m*2)+' poem.maxWidth: '+poem.maxWidth+' marginX: '+marginX);
 	
-	if (uDom(sel).parent().hasClass("adlipo.a")) {
-		
-		uDom(sel).parent().css({  // anchor css
-			
-			'text-decoration': 'none'
-		});
-		
-		if (uDom(sel).parent().parent().hasClass("adlipo.div")) {
-			
-			uDom(sel).parent().parent().css({ // div css
-			 	//'margin': 			'0px 0px 0px '+marginX+'px',		
-				'display': 			'block', 
-				'width': 			w+'px', 
-				'height': 			h+'px', 	
-				'overflow': 		'visible',
-				'background-color': palette[cIdx++]
-			});
-			
-			(cIdx === palette.length) && (cIdx = 0); // next-color
-		}
-	}
- 
 	var divStyle = {
 		'font-family': 		'custom', 
 	 	'text-align': 		'left', 
