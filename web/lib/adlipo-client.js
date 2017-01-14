@@ -52,7 +52,7 @@ function makeAd(sel, w, h, m, poem){
 	//console.log('(w-m*2): '+(w-m*2)+' poem.maxWidth: '+poem.maxWidth+' marginX: '+marginX);
 	
 	var divStyle = {
-		'font-family': 		'custom', 
+		'font-family': 		'adlipoFont', 
 	 	'text-align': 		'left', 
 		'overflow': 		'visible',
 		// 'white-space': 		'nowrap',
@@ -127,7 +127,7 @@ function domLayout(txt, w, h, fontSize){
 	else  div = testDiv;
     
     var lineHeight = parseInt(lineHeightRatio * fontSize),
-        styleString = "letter-spacing: 0px; margin: 0px; padding:0px; visibility:hidden; position:absolute; top:0; font-family:custom; ";
+        styleString = "letter-spacing: 0px; margin: 0px; padding:0px; visibility:hidden; position:absolute; top:0; font-family:adlipoFont; ";
         styleString += "line-height:"+ lineHeight +"px; height:" + h + "px; width:" + w + "px; font-size:" + fontSize + "px";
 	
 	div.setAttribute("style", styleString);

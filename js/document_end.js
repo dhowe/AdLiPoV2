@@ -7,7 +7,7 @@
       dbug = false;
   
   var fontUrl = "url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.ttf')";
-  var BenchFontFace = new FontFace('custom', fontUrl);
+  var BenchFontFace = new FontFace('adlipoFont', fontUrl);
   document.fonts.add(BenchFontFace);
   BenchFontFace.load();
     //Wait for fonts to load
