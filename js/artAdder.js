@@ -4,7 +4,7 @@ var updateInterval = threeDays = 1000 * 60 * 60 * 24 * 3;
 var lists = {
   easylist: {
     local: 'lists/easylist.txt',
-    url: "https://easylist-downloads.adblockplus.org/"
+    url: "https://easylist-downloads.adblockplus.org/easylist.txt"
   },
   adnauseam: {
     local: 'lists/adnauseam.txt',
