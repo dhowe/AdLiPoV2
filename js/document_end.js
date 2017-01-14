@@ -93,9 +93,8 @@ function processAdNode(elem){
         addWrapper(elem, "append");
       }
       else {
-        //DIV & LI is only for TEXT ADS
-        //only when if there is no img/iframe inside
-        // if( checkImagesAndIframes(elem)){
+        //TEMP: Cover the whole div
+        // if(checkImagesAndIframes(elem)){
         //   dbug && console.log("[Text Ad]");
           addWrapper(elem, "cover");
         // }
