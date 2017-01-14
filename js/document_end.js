@@ -12,14 +12,11 @@
   BenchFontFace.load();
     //Wait for fonts to load
   BenchFontFace.loaded.then(function(){
-    dbug && logFontInfo();
+    // dbug && logFontInfo();
     checkNodes();
   })
 
 function checkNodes(){
-
-     dbug && logFontInfo();
-
      chrome.runtime.sendMessage({
      what: "getSelectors"
     }, function (obj) {
@@ -39,7 +36,7 @@ function checkNodes(){
     }
     
     ;(function checkIFrames() {
-
+       dbug && console.log("[TRIED]" + tried);
        var myNodeList = document.querySelectorAll(selectors.join(','));
 
           for (var i = 0; i < myNodeList.length; ++i) {
@@ -60,22 +57,24 @@ function checkNodes(){
 }
 
 function processAdNode(elem){
-
+  
       var goodBye = false;
       var reason = "";
       var tagType = ["IFRAME", "IMG", "DIV","LI"];  //A,INS?
 
       dbug && console.log("[Process Node]", elem);
       
-      //Step1: Ignore tiny tracking elements
-      if (elem.offsetWidth < 2 || elem.offsetHeight < 2) {
-        reason = "Size is too small" + elem.offsetWidth + " " + elem.offsetHeight;
-        goodBye = true;
-      }
       
-      //Step2: Check the tag
+      
+      //Step1: Check the tag
       if (tagType.indexOf(elem.tagName) < 0) {
         reason = "Type not match";
+        goodBye = true;
+      }
+
+      //Step2: Ignore tiny tracking images
+      if (elem.tagName === "IMG" && (elem.offsetWidth < 2 || elem.offsetHeight < 2)) {
+        reason = "Size is too small" + elem.offsetWidth + " " + elem.offsetHeight;
         goodBye = true;
       }
 
@@ -84,9 +83,6 @@ function processAdNode(elem){
       if (elem.classList.value.indexOf("AdLiPo") >= 0) {
           reason = "Duplicate";
           goodBye = true;
-      }
-      else{
-         elem.className += ' AdLiPo';
       }
       
       //Ignore elements that doesn't match the requirements
@@ -99,10 +95,10 @@ function processAdNode(elem){
       else {
         //DIV & LI is only for TEXT ADS
         //only when if there is no img/iframe inside
-        if( checkImagesAndIframes(elem)){
-          dbug && console.log("[Text Ad]");
+        // if( checkImagesAndIframes(elem)){
+        //   dbug && console.log("[Text Ad]");
           addWrapper(elem, "cover");
-        }
+        // }
       
       }
       return true;
@@ -189,6 +185,8 @@ function addWrapper(elem, style) {
        dbug && console.log("Append Wrapper to Element:", elem);
        elem.appendChild(wrapper);
    }
+
+   elem.className += ' AdLiPo';
 
    dbug && console.log("[AdLiPo Wrapper]", wrapper);
 
