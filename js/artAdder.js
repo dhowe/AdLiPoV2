@@ -4,7 +4,7 @@ var updateInterval = threeDays = 1000 * 60 * 60 * 24 * 3;
 var lists = {
   easylist: {
     local: 'lists/easylist.txt',
-    url: "https://easylist-downloads.adblockplus.org/easylist.txt"
+    url: "https://easylist-downloads.adblockplus.org/"
   },
   adnauseam: {
     local: 'lists/adnauseam.txt',
@@ -39,13 +39,13 @@ var lists = {
           function(resolve, reject) {
               if (typeof chrome !== 'undefined') {
                 var key, thing, save = {};
-                if(obj){
+                if (obj) {
                   key = obj[0];
                   thing = obj[1];
                 }
                 chrome.storage.local.get('selectors').then(function (obj) {
                   dbug && console.log("Add selectors to local Storage");
-                  if(obj.selectors != undefined){
+                  if (obj.selectors != undefined) {
                     //merge array
                     var currentSelectors = obj.selectors.selectors,
                         currentWhitelist = obj.selectors.whitelist;
@@ -66,7 +66,7 @@ var lists = {
     },
 
     fetchSelectorLists: function(urls) {
-      for(var list in lists){
+      for (var list in lists){
          artAdder.fetchSelectorList(lists[list].url)
               .then(artAdder.processSelectors)
               .then(artAdder.localSet);
@@ -77,20 +77,32 @@ var lists = {
       var d = new Promise(function(resolve, reject) {
 
           var request = new XMLHttpRequest();
+
           request.open('GET', url , true);
+
           request.onload = function() {
               if (request.status >= 200 && request.status < 400) {
                   // Success!
-                  resolve(request.responseText);
-                  dbug && console.log("Successfully fetch the list from" + url);
+                  if (request.responseText != "") {
+                    var obj = {
+                      key:getKeyFromUrl(url),
+                      data:request.responseText
+                    }
+                    resolve(obj);
+                    dbug && console.log("Successfully fetch the list from" + url);
+                 } else {
+                    reject("Successful request, but no content is fetched.");
+                 }
                   
               } else {
                   reject(request.statusText);
               }
           };
+
           request.onerror = function() {
               reject(request.statusText);
           };
+          
           request.send();
 
       });
@@ -116,6 +128,7 @@ var lists = {
                    resolve({key: key,data: data});
                },
                error: function(e) {
+
                    resolve({
                        status: 'error',
                        fails: -1
@@ -134,10 +147,15 @@ var lists = {
     
        var d = new Promise(function(resolve, reject) {
        
-        var txt = obj.data, key = obj.key,
-            txtArr = txt.split("\n").reverse(),
+        var txt = obj.data, key = obj.key, txtArr,
             selectors = [], whitelist = [];
-
+        
+        if (txt === undefined){
+            console.log("Error! No Selectors to be processed!", obj);
+            return;
+        }
+            
+         txtArr = txt.split("\n").reverse();
          dbug && console.log("Process Selectors: " + key + " " + txt.length);
 
         for (var i = 0; i < txtArr.length; i ++) {
@@ -167,7 +185,7 @@ var lists = {
         var lastCheckTime = chrome.storage.local.get('lastCheckTime', function (data) {
 
           dbug && console.log("lastCheckTime", data.lastCheckTime);
-          if(data.lastCheckTime)
+          if (data.lastCheckTime)
           lastCheckTime = Date.parse(data.lastCheckTime);
           else lastCheckTime = 0;
 
@@ -191,10 +209,9 @@ var lists = {
     prepareSelectors: function() {
       dbug && console.log("Prepare Selectors");
       
-
           chrome.storage.local.get(Object.keys(lists), function(obj) {
               dbug && console.log(obj);
-              if (obj.lastCheckTime === undefined) {
+              if (Object.keys(obj).length === 0) {
                   artAdder.loadListsFromLocal(lists);
               }
           });
@@ -204,6 +221,7 @@ var lists = {
   }//End of Art Adder
 
   window.artAdder = artAdder;
+
 })();
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -214,5 +232,7 @@ function getKeyFromUrl(url) {
   key = key.slice(0,key.length-4);
   return key;
 }
+
+
 
 
