@@ -31,7 +31,7 @@
     {
         "matches": ["http://*/*", "https://*/*"],
         "js": ["js/lib/udom.js", "js/document_end.js",
-        "web/lib/text.js", "web/lib/rita-1.0.67.microp5.js", "web/fonts/BenchNineAll.js", "web/lib/adlipo-client.js"],
+        "web/lib/text.js", "web/fonts/BenchNineAll.js", "web/lib/adlipo-client.js"],
         "run_at": "document_end",
         "all_frames": true
     }
