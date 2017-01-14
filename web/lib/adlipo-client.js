@@ -127,11 +127,11 @@ function domLayout(txt, w, h, fontSize){
 	else  div = testDiv;
     
     var lineHeight = parseInt(lineHeightRatio * fontSize),
-        styleString = "letter-spacing: 0px; margin: 0px; padding:0px; position:absolute; top:0; font-family:custom; ";
+        styleString = "letter-spacing: 0px; margin: 0px; padding:0px; visibility:hidden; position:absolute; top:0; font-family:custom; ";
         styleString += "line-height:"+ lineHeight +"px; height:" + h + "px; width:" + w + "px; font-size:" + fontSize + "px";
 	
 	div.setAttribute("style", styleString);
-	div.innerHTML = "<span id='box' style='background-color:rgba(200,200,200,.3);color:black; font-size:" + fontSize + "px'>" + txt + "</span>";
+	div.innerHTML = "<span id='box' style='font-size:" + fontSize + "px'>" + txt + "</span>";
 	
 	
    var textBox = document.getElementById("box"),
