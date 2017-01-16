@@ -7,8 +7,8 @@ var cIdx = Math.floor(Math.random()*palette.length);
 var maxTries = 100, tries = 0;
 var lineHeightRatio = 1.1;
 
-var fonts;
-loadFonts();
+// var fonts;
+// loadFonts();
 
 function injectAd(sel, w, h, m, tries) {
 	 chrome.runtime.sendMessage({
@@ -52,7 +52,7 @@ function makeAd(sel, w, h, m, poem){
 	//console.log('(w-m*2): '+(w-m*2)+' poem.maxWidth: '+poem.maxWidth+' marginX: '+marginX);
 	
 	var divStyle = {
-		'font-family': 		'adlipoFont', 
+		'font-family': 		'BenchNine', 
 	 	'text-align': 		'left', 
 		'overflow': 		'visible',
 		'-webkit-font-smoothing': 'subpixel-antialiased',
@@ -87,7 +87,7 @@ function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts)
 	var szIdx=0, rts, lines = [], tmp = [], dbug = 0,
 		actualW = w-m*2, actualH = h-m*2; 
 	
-    if (!fonts) throw Error('dynamicLayout(): no font!');
+    // if (!fonts) throw Error('dynamicLayout(): no font!');
 
     fits = domLayout(txt, actualW , actualH, fsizes[szIdx]);
 
@@ -105,7 +105,7 @@ function dynamicLayout(txt, w, h, m, fsizes, returnRiTexts)
 	var poem = {
 		type: 'simple',
 		align: 'left', 
-		font:  fonts,
+		font:  'BenchNine',
 		fontSize: fsizes[szIdx],
 		padding: m,
 		lines: txt
@@ -128,7 +128,7 @@ function domLayout(txt, w, h, fontSize){
 	else  div = testDiv;
     
     var lineHeight = parseInt(lineHeightRatio * fontSize),
-        styleString = "letter-spacing: 0px; margin: 0px; padding:0px; visibility:hidden; position:absolute; top:0; font-family:adlipoFont; ";
+        styleString = "letter-spacing: 0px; margin: 0px; padding:0px; visibility:hidden; position:absolute; top:0; font-family:BenchNine; ";
         styleString += "line-height:"+ lineHeight +"px; height:" + h + "px; width:" + w + "px; font-size:" + fontSize + "px";
 	
 	div.setAttribute("style", styleString);

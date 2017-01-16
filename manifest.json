@@ -30,13 +30,13 @@
   "content_scripts": [
     {
         "matches": ["http://*/*", "https://*/*"],
-        "js": ["js/lib/udom.js", "js/document_end.js", "web/fonts/BenchNineAll.js", "web/lib/adlipo-client.js"],
+        "js": ["js/lib/udom.js", "js/document_end.js", "web/lib/adlipo-client.js"],
         "run_at": "document_end",
         "all_frames": true
     }
   ],
   "web_accessible_resources":[
-    "web/fonts/BenchNine.ttf"
+    "web/fonts/BenchNine.woff"
     ],
   "background": {
     "page": "background.html"

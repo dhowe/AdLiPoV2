@@ -6,8 +6,8 @@
       replacedCount = 0,
       dbug = false;
   
-  var fontUrl = "url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.ttf')";
-  var BenchFontFace = new FontFace('adlipoFont', fontUrl);
+  var fontUrl = "url('chrome-extension://" + chrome.runtime.id + "/web/fonts/BenchNine.woff')";
+  var BenchFontFace = new FontFace('BenchNine', fontUrl);
   document.fonts.add(BenchFontFace);
   BenchFontFace.load();
     //Wait for fonts to load
@@ -16,45 +16,47 @@
     checkNodes();
   })
 
-function checkNodes(){
-     chrome.runtime.sendMessage({
-     what: "getSelectors"
-    }, function (obj) {
-      // console.log(obj);
-    var selectors = obj.selectors;
-    var host = window.location.hostname;
-    var skips = [];
-    
-    if (host) {
-      var whitelist = obj.whitelist;
-      var domain = host.replace('www.','');
+function checkNodes() {
+    chrome.runtime.sendMessage({
+        what: "getSelectors"
+    }, function(obj) {
+        // console.log(obj);
+        var selectors = obj.selectors;
+        var host = window.location.hostname;
+        var skips = [];
 
-      for (var i = 0; i < whitelist.length-1; ++i) {
-          if (whitelist[i][0].indexOf(domain) >= 0) skips.push(whitelist[i][1])
-      }
-     
-    }
-    
-    ;(function checkIFrames() {
-       dbug && console.log("[TRIED]" + tried);
-       var myNodeList = document.querySelectorAll(selectors.join(','));
+        if (host) {
+            var whitelist = obj.whitelist;
+            var domain = host.replace('www.', '');
 
-          for (var i = 0; i < myNodeList.length; ++i) {
+            for (var i = 0; i < whitelist.length - 1; ++i) {
+                if (whitelist[i][0].indexOf(domain) >= 0) skips.push(whitelist[i][1])
+            }
 
-              var item = myNodeList[i];
-              if (skips.length == 0 || !item.matches(skips.join(',')))
-                  processAdNode(item);
+        }
 
-          }
+        ;
+        (function checkIFrames() {
+            dbug && console.log("[TRIED]" + tried);
+            var myNodeList = document.querySelectorAll(selectors.join(','));
 
-          if (++tried < howMany) {
-              setTimeout(checkIFrames, 3000)
-          }
- 
+            for (var i = 0; i < myNodeList.length; ++i) {
 
-    })()
-  })
-}
+                var item = myNodeList[i];
+                if (skips.length == 0 || !item.matches(skips.join(',')))
+                    processAdNode(item);
+
+            }
+
+            if (++tried < howMany) {
+                setTimeout(checkIFrames, 3000)
+            }
+
+
+        })()
+    });
+
+};
 
 function processAdNode(elem){
   
