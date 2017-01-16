@@ -3,7 +3,7 @@
   "name": "AdLiPo",
   "description": "Replacing ads with with generated language art.",
   "author" : "Daniel C. Howe",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage_url" : "http://rednoise.org/adlipo/",
   "icons": {
     "16": "images/icon-16.png",
