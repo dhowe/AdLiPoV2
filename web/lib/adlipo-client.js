@@ -55,6 +55,7 @@ function makeAd(sel, w, h, m, poem){
 		'font-family': 		'adlipoFont', 
 	 	'text-align': 		'left', 
 		'overflow': 		'visible',
+		'-webkit-font-smoothing': 'subpixel-antialiased',
 		// 'white-space': 		'nowrap',
 		'letter-spacing': 	'0px',
 		// 'margin': 			'0px',
